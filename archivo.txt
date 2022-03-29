@@ -1,0 +1,57 @@
+{
+	"calculos":
+	[
+		"oper1":{
+			"var1": 8,
+			"var2": 25,
+			"oper": "add"
+		},
+		"ejemplo2":{
+			"var1":{
+				"var1": 12,
+				"var2": {
+					"var1": 8,
+					"var2": 2,
+					"oper": "pow"
+				},
+				"oper": "add"
+			},
+			"var2": 4,
+			"oper": "div"
+		},
+		"calculos":{
+			"var1":{
+				"var1":{
+					"var1":5,
+					"var2":9,
+					"oper":"add"
+				},
+				"var2": 2,
+				"oper": "mul"
+			},
+			"var2": {
+				"var1": 6,
+				"var2": 5,
+				"oper": "mul"
+			},
+			"oper":"add"
+		},
+		"calculos2":{
+			"var1":{
+				"var1":{
+					"var1":5,
+					"var2":9,
+					"oper":"add"
+				},
+				"var2": 2,
+				"oper": "mul"
+			},
+			"var2": {
+				"var1": 6,
+				"var2": 5,
+				"oper": "mul"
+			},
+			"oper":"add"
+		},
+	]
+}

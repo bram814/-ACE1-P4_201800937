@@ -21,7 +21,8 @@ _regresar       db 0ah,0dh,               "1. regresar$"
 _error1         db 0ah,0dh,               "> Error al Abrir Archivo, no Existe ",   "$"
 _error2         db 0ah,0dh,               "> Error al Cerrar Archivo",              "$"
 _error3         db 0ah,0dh,               "> Error al Escribir el Archivo",         "$"
-_error4         db 0ah,0dh,               "> Error al Crear el Archivo",         "$"
+_error4         db 0ah,0dh,               "> Error al Crear el Archivo",            "$"
+_error5         db 0ah,0dh,               "> Error al Leer al Archivo",             "$"
 ; ************** [IDENTIFICADOR] **************
 _cadena1        db 0ah,0dh,               "Universidad de San Carlos de Guatemala$"
 _cadena2        db 0ah,0dh,               "Facultad de Ingenieria$"
@@ -42,8 +43,16 @@ _cadena14       db 0ah,0dh,               "/ Division$"
 _cadena15       db 0ah,0dh,               "^ Potencia$"
 ; ************** [ARCHIVO] **************
 _cadena16       db 0ah,0dh,               "> Ingrese la Ruta del Archivo: ", "$"
+_cadena17       db 0ah,0dh,               "1. Cargar Archivo ",     "$"
+_cadena18       db 0ah,0dh,               "2. Cerrar Archivo ",     "$"
+_cadena19       db 0ah,0dh,               "3. Mostrar Contenido",   "$"
+_cadena20       db 0ah,0dh,               "4. Regresar",            "$"
+
+
+
 _bufferInput    db 50 dup('$')
 _handleInput    dw ? 
+_bufferInfo     db 2000 dup('$')
 
 ; ************************************* [PROCS] *************************************
 
@@ -82,8 +91,16 @@ funcOperation proc far
     GetPrint _opcion
     ret
 funcOperation endp
-
-
+; **************************** [PATH] **************************** 
+funcPath proc far 
+    GetPrint _salto
+    GetPrint _cadena17
+    GetPrint _cadena18
+    GetPrint _cadena19
+    GetPrint _cadena20
+    GetPrint _opcion
+    ret
+funcPath endp
 
 .code
 
@@ -115,12 +132,42 @@ main proc
         jmp Lmenu
 
     Lfile:
-        GetPrint    _cadena16                      ; Ingreso de Path
-        GetRoot     _bufferInput                    ; Capturar Path
-        GetOpenFile _bufferInput, _handleInput  ; Abrir file
-
-
+        ; LLamamos path 
+        call funcPath
+        GetInput
+        cmp al,31H ; Codigo ASCCI [1 -> Hexadecimal]
+        je LreadFile
+        cmp al,32H ; Codigo ASCCI [2 -> Hexadecimal]
+        je LcloseFile
+        cmp al,33H ; Codigo ASCCI [3 -> Hexadecimal]
+        je LmostrarFile 
+        cmp al,34H ; Codigo ASCCI [4 -> Hexadecimal]
+        je Lmenu 
         jmp Lmenu
+        
+
+    LreadFile:
+        GetPrint    _salto
+        GetPrint    _cadena16                                           ; Ingreso de Path
+        ; GetInput
+        GetRoot     _bufferInput                                        ; Capturar Path
+        GetOpenFile _bufferInput,_handleInput                          ; Abrir file
+        GetReadFile _handleInput,_bufferInfo,SIZEOF _bufferInfo       ; Guardar Contenido
+        GetInput
+        jmp Lfile
+
+    LmostrarFile:
+        GetPrint _salto
+        GetPrint _bufferInfo
+        GetPrint _salto
+        GetInput
+
+        jmp Lfile
+
+    LcloseFile:
+        GetCloseFile _handleInput
+        GetInput
+        jmp Lfile
 
     Loperacion:
         ; LLamamos operaciones 
@@ -148,17 +195,20 @@ main proc
         jmp Lmenu
     Lerror2:
         GetPrint _salto
-        GetPrint _error1
+        GetPrint _error2
         jmp Lmenu
     Lerror3:
         GetPrint _salto
-        GetPrint _error1
+        GetPrint _error3
         jmp Lmenu
-    Lerrro4:
+    Lerror4:
         GetPrint _salto
-        GetPrint _error1
+        GetPrint _error4
         jmp Lmenu
-
+    Lerror5:
+        GetPrint _salto
+        GetPrint _error5
+        jmp Lmenu
     Lsalir:
         mov ax,4c00h
         int 21h

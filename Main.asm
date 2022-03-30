@@ -17,6 +17,8 @@ include Macros.asm
 _salto          db 0ah,0dh,               "$"
 _opcion         db 0ah,0dh,               "> Ingrese Opcion: $"
 _regresar       db 0ah,0dh,               "1. regresar$"
+_num            db                        "> ", "$"
+_resultado      db 0ah,0dh,               "> resultado es ", "$"
 ; ************** [ERRORES] **************
 _error1         db 0ah,0dh,               "> Error al Abrir Archivo, no Existe ",   "$"
 _error2         db 0ah,0dh,               "> Error al Cerrar Archivo",              "$"
@@ -47,7 +49,14 @@ _cadena17       db 0ah,0dh,               "1. Cargar Archivo ",     "$"
 _cadena18       db 0ah,0dh,               "2. Cerrar Archivo ",     "$"
 _cadena19       db 0ah,0dh,               "3. Mostrar Contenido",   "$"
 _cadena20       db 0ah,0dh,               "4. Regresar",            "$"
-
+; ************** [CALCULADORA] **************
+_cadena21       db 0ah,0dh,               "Calculadora",            "$"
+_cadena22       db 0ah,0dh,               "==============================",  "$"
+_numero1S       db 10 dup(' '), "$" ; cadena de numero 1 para convertirlo a un int
+_numero2S       db 10 dup(' '), "$" ; cadena de numero 2 para convertirlo a un int
+_numero1        dw 0 ; nos servira para almacenar el numero1 convertido en int
+_numero2        dw 0 ; nos servira para almacenar el numero2 convertido en int
+_calcuResultado dw 0 ; nos servira par almacenar el resultado
 
 
 _bufferInput    db 50 dup('$')
@@ -101,6 +110,14 @@ funcPath proc far
     GetPrint _opcion
     ret
 funcPath endp
+; **************************** [CALCULADORA] **************************** 
+funcCalculadora proc far 
+    GetPrint _salto
+    GetPrint _cadena21
+    GetPrint _cadena22
+    GetPrint _salto
+    ret
+funcCalculadora endp
 
 .code
 
@@ -170,13 +187,20 @@ main proc
         jmp Lfile
 
     Loperacion:
-        ; LLamamos operaciones 
-        call funcOperation
-        ; Obtenemos el Caracter
-        GetInput
+        call funcCalculadora ; LLamamos calculadora 
+        
+        GetPrint _num ; Obtenemos el primer número
+        Solicitar_Numero _numero1S, _numero1
+        ;Solicitar_Numero _numero1S,_numero1
+        
+        GetPrint _num ; Obtenemos el segundo número
+        Solicitar_Numero _numero2S, _numero2
+        ; GetText _numero2S
+        GetPrint _num
 
+        GetInput
         cmp al,2BH ; Codigo ASCCI [+ -> Hexadecimal]
-        je Loperacion
+        je Lsuma
         cmp al,2DH ; Codigo ASCCI [- -> Hexadecimal]
         je Loperacion
         cmp al,78H ; Codigo ASCCI [x -> Hexadecimal]
@@ -187,7 +211,33 @@ main proc
         je Loperacion
         cmp al,31H ; Codigo ASCCI [1 -> Hexadecimal]
         je Lmenu
+        jmp Lpotencia
+
+    
+    Lsuma:
+    
+        mov dx, _numero1
+        add dx, _numero2
+        mov _calcuResultado, dx
+        mov ax, _calcuResultado
+        Int_String _numero1S ; convierte el numero guardado en ax
+        GetPrint _resultado
+        GetPrint _numero1S
+
+        ;limpiar variables
+        mov _numero1, 0
+        mov _numero1, ax
+        mov _calcuResultado, 0
+        mov _numero2, 0
+           
+        jmp Lmenu
+
+
+    Lpotencia:
+
         jmp Loperacion
+    
+
 
     Lerror1:
         GetPrint _salto

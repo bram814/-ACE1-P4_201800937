@@ -52,11 +52,11 @@ _cadena20       db 0ah,0dh,               "4. Regresar",            "$"
 ; ************** [CALCULADORA] **************
 _cadena21       db 0ah,0dh,               "Calculadora",            "$"
 _cadena22       db 0ah,0dh,               "==============================",  "$"
-_numero1S       db 10 dup(' '), "$" ; cadena de numero 1 para convertirlo a un int
-_numero2S       db 10 dup(' '), "$" ; cadena de numero 2 para convertirlo a un int
-_numero1        dw 0 ; nos servira para almacenar el numero1 convertido en int
-_numero2        dw 0 ; nos servira para almacenar el numero2 convertido en int
-_calcuResultado dw 0 ; nos servira par almacenar el resultado
+_numero1S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 1 en String
+_numero2S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 1 en String
+_numero1        dw 0                ; Sirve para almacenar el numero 1 en int
+_numero2        dw 0                ; Sirve para almacenar el numero 2 en int
+_calcuResultado dw 0                ; Sirve para almacenar el Resultado
 
 
 _bufferInput    db 50 dup('$')
@@ -202,9 +202,9 @@ main proc
         cmp al,2BH ; Codigo ASCCI [+ -> Hexadecimal]
         je Lsuma
         cmp al,2DH ; Codigo ASCCI [- -> Hexadecimal]
-        je Loperacion
+        je Lresta
         cmp al,78H ; Codigo ASCCI [x -> Hexadecimal]
-        je Loperacion
+        je Lmultiplicacion
         cmp al,2FH ; Codigo ASCCI [/ -> Hexadecimal]
         je Loperacion
         cmp al,5EH ; Codigo ASCCI [^ -> Hexadecimal]
@@ -214,11 +214,49 @@ main proc
         jmp Lpotencia
 
     
-    Lsuma:
+    Lsuma: ; operación suma
     
         mov dx, _numero1
         add dx, _numero2
         mov _calcuResultado, dx
+        mov ax, _calcuResultado
+        Int_String _numero1S ; convierte el numero guardado en ax
+        GetPrint _resultado
+        GetPrint _numero1S
+
+        ;limpiar variables
+        mov _numero1, 0
+        mov _numero1, ax
+        mov _calcuResultado, 0
+        mov _numero2, 0
+           
+        jmp Lmenu
+
+
+    Lresta: ; operación resta
+
+        mov dx, _numero1
+        sub dx, _numero2
+        mov _calcuResultado, dx
+        mov ax, _calcuResultado
+        Int_String _numero1S ; convierte el numero guardado en ax
+        GetPrint _resultado
+        GetPrint _numero1S
+
+        ;limpiar variables
+        mov _numero1, 0
+        mov _numero1, ax
+        mov _calcuResultado, 0
+        mov _numero2, 0
+           
+        jmp Lmenu
+
+    Lmultiplicacion: ; operacion multiplicacion
+
+        mov ax, _numero1
+        mov bx, _numero2
+        imul bx
+        mov _calcuResultado, ax
         mov ax, _calcuResultado
         Int_String _numero1S ; convierte el numero guardado en ax
         GetPrint _resultado

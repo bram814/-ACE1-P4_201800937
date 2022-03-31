@@ -12,6 +12,14 @@ GetInput macro
 	MOV AH,01H
 	int 21H
 endm
+
+GetInputMax macro _resultS
+	mov ah, 3fh 					; int21 para leer fichero o dispositivo
+	mov bx, 00 						; handel para leer el teclado
+	mov cx, 10 						; bytes a leer (aca las definimos con 10)
+	mov dx, offset[_resultS]
+	int 21h
+endm
 ; ************** [VARIABLE][GET] **************
 GetText macro buffer
 	LOCAL Ltext, Lout
@@ -198,10 +206,10 @@ endm
 GetAC macro palabra
 	LOCAL ac1, ac2
 	push ax
-  	push cx
-  	push bx
-  	push dx 
-  	xor SI, SI ; contador para el contenedor
+  push cx
+  push bx
+  push dx 
+  xor SI, SI ; contador para el contenedor
 	xor DI, DI ; contador para posiciones
 	xor ax, ax 
 	xor cx, cx ; usado
@@ -233,10 +241,10 @@ endm
 GetAnalizador macro text
 	local _Lout, _Lerror, _Linput, _Linput2, _LcalculosL
 	push ax
-  	push cx
-  	push bx
-  	push dx 
-  	xor SI, SI ; contador para el contenedor
+  push cx
+  push bx
+  push dx 
+  xor SI, SI ; contador para el contenedor
 	xor DI, DI ; contador para posiciones
 	xor ax, ax 
 	xor cx, cx ; usado
@@ -273,9 +281,51 @@ GetAnalizador macro text
 		GetPrint _error6
 		jmp _Lout
 	_Lout:
-		push ax
+			push ax
 	  	push cx
 	  	push bx
 	  	push dx 
 
+endm
+
+
+GetPotencia macro _result, _num1S, _num1I, _num2I, _numTemp
+	LOCAL _Lout, _L0, _Lpote
+	push ax
+  push cx
+  push bx
+  push dx 
+  xor SI, SI ; contador para el contenedor
+	xor DI, DI ; contador para posiciones
+	inc SI ; incremento 1° vez
+	inc SI ; incremento 2° vez
+	mov ax,_num1I
+	mov _numTemp, ax
+	cmp _num2I,0
+	je _L0
+	jmp _Lpote
+
+	_L0:
+
+		mov _num1I,1
+		mov _num1S,'1'
+		jmp _Lout
+
+	_Lpote:
+		mov ax, _numTemp
+    mov bx, _num1I
+    imul bx
+    mov _result,ax
+    mov ax,_result
+    Int_String _num1S ; convierte el numero guardado en ax
+    mov _numTemp,ax
+    cmp SI,_num2I
+   	je _Lout
+   	inc SI
+    jmp _Lpote
+
+	_Lout:
+		GetPrint _resultado
+    GetPrint _num1S
+	
 endm

@@ -53,10 +53,14 @@ _cadena20       db 0ah,0dh,               "4. Regresar",            "$"
 ; ************** [CALCULADORA] **************
 _cadena21       db 0ah,0dh,               "Calculadora",            "$"
 _cadena22       db 0ah,0dh,               "==============================",  "$"
+_resultS        db 10 dup(' '), "$" ; Sirve para almacenar el result en String
 _numero1S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 1 en String
-_numero2S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 1 en String
+_numero2S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 2 en String
+_numero3S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _numero1        dw 0                ; Sirve para almacenar el numero 1 en int
 _numero2        dw 0                ; Sirve para almacenar el numero 2 en int
+_numero3        dw 0                ; Sirve para almacenar el numero 2 en int
+_numeroTemp     dw 0                ; Sirve para almacenar el numero 2 en int
 _calcuResultado dw 0                ; Sirve para almacenar el Resultado
 
 
@@ -198,20 +202,28 @@ main proc
         Solicitar_Numero _numero2S, _numero2
      
         GetPrint _num
+        GetInputMax _resultS
 
-        GetInput
-        cmp al,2BH ; Codigo ASCCI [+ -> Hexadecimal]
+        cmp _resultS,2BH ; Codigo ASCCI [+ -> Hexadecimal]
         je Lsuma
-        cmp al,2DH ; Codigo ASCCI [- -> Hexadecimal]
+        cmp _resultS,2DH ; Codigo ASCCI [- -> Hexadecimal]
         je Lresta
-        cmp al,78H ; Codigo ASCCI [x -> Hexadecimal]
+        cmp _resultS,78H ; Codigo ASCCI [x -> Hexadecimal]
         je Lmultiplicacion
-        cmp al,2FH ; Codigo ASCCI [/ -> Hexadecimal]
-        je Loperacion
-        cmp al,5EH ; Codigo ASCCI [^ -> Hexadecimal]
-        je Loperacion
-        cmp al,65h  ; Codigo ASCCI [e -> Hexadecimal] salir del programa
+        cmp _resultS,2FH ; Codigo ASCCI [/ -> Hexadecimal]
+        je Ldivision
+        cmp _resultS,5EH ; Codigo ASCCI [^ -> Hexadecimal]
+        je Lpotencia
+        cmp _resultS,65h  ; Codigo ASCCI [e -> Hexadecimal] salir del programa
         je Lmenu
+
+        String_Int _resultS
+        mov _numero3,ax
+
+        GetPrint _num
+        GetInputMax _resultS
+        cmp _resultS,5EH ; Codigo ASCCI [^ -> Hexadecimal]
+        je Lpotencia2
 
         jmp Loperacion
 
@@ -230,24 +242,65 @@ main proc
         Solicitar_Numero _numero2S, _numero2
     
         GetPrint _num
+        GetInputMax _resultS
 
-        GetInput
-        cmp al,2BH ; Codigo ASCCI [+ -> Hexadecimal]
+        cmp _resultS,2BH ; Codigo ASCCI [+ -> Hexadecimal]
         je Lsuma
-        cmp al,2DH ; Codigo ASCCI [- -> Hexadecimal]
+        cmp _resultS,2DH ; Codigo ASCCI [- -> Hexadecimal]
         je Lresta
-        cmp al,78H ; Codigo ASCCI [x -> Hexadecimal]
+        cmp _resultS,78H ; Codigo ASCCI [x -> Hexadecimal]
         je Lmultiplicacion
-        cmp al,2FH ; Codigo ASCCI [/ -> Hexadecimal]
+        cmp _resultS,2FH ; Codigo ASCCI [/ -> Hexadecimal]
         je Ldivision
-        cmp al,5EH ; Codigo ASCCI [^ -> Hexadecimal]
-        je Loperacion
-        cmp al,65h  ; Codigo ASCCI [e -> Hexadecimal] salir del programa
+        cmp _resultS,5EH ; Codigo ASCCI [^ -> Hexadecimal]
+        je Lpotencia
+        cmp _resultS,65h  ; Codigo ASCCI [e -> Hexadecimal] salir del programa
         je Lmenu
+
+
+        String_Int _resultS
+        mov _numero3,ax
+
+        GetPrint _num
+        GetInputMax _resultS
+        cmp _resultS,5EH ; Codigo ASCCI [^ -> Hexadecimal]
+        je Lpotencia2
 
         jmp Loperacion
 
+    Loperacion3:
+        call funcCalculadora ; LLamamos calculadora 
+        
+        GetPrint _num ; Obtenemos el primer número
+        GetPrint _numero1S
+        String_Int _numero1S
+        mov _numero1, ax
+        GetPrint _salto
+        GetPrint _num ; Obtenemos el primer número
+        GetPrint _numero2S
+        String_Int _numero2S
+        mov _numero2, ax
+        GetPrint _salto
+
     
+        GetPrint _num
+        GetInputMax _resultS
+
+        cmp _resultS,2BH ; Codigo ASCCI [+ -> Hexadecimal]
+        je Lsuma
+        cmp _resultS,2DH ; Codigo ASCCI [- -> Hexadecimal]
+        je Lresta
+        cmp _resultS,78H ; Codigo ASCCI [x -> Hexadecimal]
+        je Lmultiplicacion
+        cmp _resultS,2FH ; Codigo ASCCI [/ -> Hexadecimal]
+        je Ldivision
+        cmp _resultS,5EH ; Codigo ASCCI [^ -> Hexadecimal]
+        je Lpotencia
+        cmp _resultS,65h  ; Codigo ASCCI [e -> Hexadecimal] salir del programa
+        je Lmenu
+
+        jmp Loperacion2
+
     Lsuma: ; operación suma
     
         mov dx, _numero1
@@ -300,10 +353,19 @@ main proc
         Int_String _numero1S ; convierte el numero guardado en ax
         GetPrint _resultado
         GetPrint _numero1S
+        jmp Loperacion2
 
     Lpotencia:
-
+        
+        GetPotencia _calcuResultado, _numero1S, _numero1, _numero2, _numeroTemp
         jmp Loperacion2
+
+    Lpotencia2:
+
+
+        GetPotencia _calcuResultado, _numero2S, _numero2, _numero3, _numeroTemp
+
+        jmp Loperacion3
     
 
 

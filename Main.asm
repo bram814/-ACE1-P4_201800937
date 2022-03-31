@@ -25,6 +25,7 @@ _error2         db 0ah,0dh,               "> Error al Cerrar Archivo",          
 _error3         db 0ah,0dh,               "> Error al Escribir el Archivo",         "$"
 _error4         db 0ah,0dh,               "> Error al Crear el Archivo",            "$"
 _error5         db 0ah,0dh,               "> Error al Leer al Archivo",             "$"
+_error6         db 0ah,0dh,               "> Error en el Archivo",                  "$"
 ; ************** [IDENTIFICADOR] **************
 _cadena1        db 0ah,0dh,               "Universidad de San Carlos de Guatemala$"
 _cadena2        db 0ah,0dh,               "Facultad de Ingenieria$"
@@ -188,14 +189,14 @@ main proc
 
     Loperacion:
         call funcCalculadora ; LLamamos calculadora 
-        
+        GetClean _numero1,_numero1,_calcuResultado
         GetPrint _num ; Obtenemos el primer número
         Solicitar_Numero _numero1S, _numero1
-        ;Solicitar_Numero _numero1S,_numero1
+        
         
         GetPrint _num ; Obtenemos el segundo número
         Solicitar_Numero _numero2S, _numero2
-        ; GetText _numero2S
+     
         GetPrint _num
 
         GetInput
@@ -209,9 +210,42 @@ main proc
         je Loperacion
         cmp al,5EH ; Codigo ASCCI [^ -> Hexadecimal]
         je Loperacion
-        cmp al,31H ; Codigo ASCCI [1 -> Hexadecimal]
+        cmp al,65h  ; Codigo ASCCI [e -> Hexadecimal] salir del programa
         je Lmenu
-        jmp Lpotencia
+
+        jmp Loperacion
+
+
+    Loperacion2:
+        call funcCalculadora ; LLamamos calculadora 
+        
+        GetPrint _num ; Obtenemos el primer número
+        GetPrint _numero1S
+        GetPrint _salto
+        String_Int _numero1S
+        mov _numero1, ax
+        
+        
+        GetPrint _num ; Obtenemos el segundo número
+        Solicitar_Numero _numero2S, _numero2
+    
+        GetPrint _num
+
+        GetInput
+        cmp al,2BH ; Codigo ASCCI [+ -> Hexadecimal]
+        je Lsuma
+        cmp al,2DH ; Codigo ASCCI [- -> Hexadecimal]
+        je Lresta
+        cmp al,78H ; Codigo ASCCI [x -> Hexadecimal]
+        je Lmultiplicacion
+        cmp al,2FH ; Codigo ASCCI [/ -> Hexadecimal]
+        je Ldivision
+        cmp al,5EH ; Codigo ASCCI [^ -> Hexadecimal]
+        je Loperacion
+        cmp al,65h  ; Codigo ASCCI [e -> Hexadecimal] salir del programa
+        je Lmenu
+
+        jmp Loperacion
 
     
     Lsuma: ; operación suma
@@ -224,13 +258,9 @@ main proc
         GetPrint _resultado
         GetPrint _numero1S
 
-        ;limpiar variables
-        mov _numero1, 0
-        mov _numero1, ax
-        mov _calcuResultado, 0
-        mov _numero2, 0
+        ;GetClean _numero1,_numero1,_calcuResultado
            
-        jmp Lmenu
+        jmp Loperacion2
 
 
     Lresta: ; operación resta
@@ -242,38 +272,38 @@ main proc
         Int_String _numero1S ; convierte el numero guardado en ax
         GetPrint _resultado
         GetPrint _numero1S
-
-        ;limpiar variables
-        mov _numero1, 0
-        mov _numero1, ax
-        mov _calcuResultado, 0
-        mov _numero2, 0
            
-        jmp Lmenu
+        jmp Loperacion2
 
     Lmultiplicacion: ; operacion multiplicacion
 
         mov ax, _numero1
         mov bx, _numero2
         imul bx
-        mov _calcuResultado, ax
-        mov ax, _calcuResultado
+        mov _calcuResultado,ax
+        mov ax,_calcuResultado
         Int_String _numero1S ; convierte el numero guardado en ax
         GetPrint _resultado
         GetPrint _numero1S
 
-        ;limpiar variables
-        mov _numero1, 0
-        mov _numero1, ax
-        mov _calcuResultado, 0
-        mov _numero2, 0
            
-        jmp Lmenu
+        jmp Loperacion2
 
+    Ldivision:
+
+        mov ax,_numero1    
+        cwd                 ; Convertimos a dobleword
+        mov bx,_numero2    
+        idiv bx             ; ax/bx ax = Resultado
+
+        mov _calcuResultado,ax  ; guardamos en calcuIN1
+        Int_String _numero1S ; convierte el numero guardado en ax
+        GetPrint _resultado
+        GetPrint _numero1S
 
     Lpotencia:
 
-        jmp Loperacion
+        jmp Loperacion2
     
 
 

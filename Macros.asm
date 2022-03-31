@@ -176,8 +176,106 @@ Solicitar_Numero macro cadenaNumero, numeroConvertido
 	mov cx, 10 						; bytes a leer (aca las definimos con 10)
 	mov dx, offset[cadenaNumero]
 	int 21h
-
+	GetAC cadenaNumero
+	cmp cadenaNumero,65h  ; Codigo ASCCI [e -> Hexadecimal] salir del programa
+	je Lmenu
+	
 	; Convertimos la cadena a numero es guardado en AX
 	String_Int cadenaNumero
 	mov numeroConvertido, ax 		; Guardar en el "int"
+endm
+
+;limpiar variables
+GetClean macro _numero1, _numero2, _calcuResultado
+    mov _numero1, 0
+    mov _numero1, ax
+    mov _calcuResultado, 0
+    mov _numero2, 0
+endm
+
+
+
+GetAC macro palabra
+	LOCAL ac1, ac2
+	push ax
+  	push cx
+  	push bx
+  	push dx 
+  	xor SI, SI ; contador para el contenedor
+	xor DI, DI ; contador para posiciones
+	xor ax, ax 
+	xor cx, cx ; usado
+	xor bx, bx ; usado
+	xor dx, dx 
+  
+	; 13
+	cmp palabra[SI], 41h
+	je ac1	
+	jmp ac2
+
+	ac1:
+		INC SI
+		cmp palabra[SI], 43h
+		je Loperacion
+		jmp ac1
+
+	ac2:
+		push ax
+  		push cx
+  		push bx
+  		push dx 
+
+endm
+
+
+
+
+GetAnalizador macro text
+	local _Lout, _Lerror, _Linput, _Linput2, _LcalculosL
+	push ax
+  	push cx
+  	push bx
+  	push dx 
+  	xor SI, SI ; contador para el contenedor
+	xor DI, DI ; contador para posiciones
+	xor ax, ax 
+	xor cx, cx ; usado
+	xor bx, bx ; usado
+	xor dx, dx 
+
+	cmp text[SI],7bh
+	je _Linput
+	jmp _Lout
+	_Linput:
+		inc SI
+		cmp text[SI],22h
+		je _Linput2
+		jmp _Lout
+
+	_Linput2:
+		inc SI
+		xor ch,ch
+		mov cl,text[SI]
+		add bx,cx
+
+		cmp entrada[SI], '$' ; por si hay errore en el archivo
+    	je _Lerror
+
+		cmp bx,356h	 ; Codigo ASCCI [calculos -> Hexadecimal]
+		je _LcalculosL
+
+		jmp _Linput2
+
+	_LcalculosL:
+		; aca ya esta en el perron
+
+	_Lerror:
+		GetPrint _error6
+		jmp _Lout
+	_Lout:
+		push ax
+	  	push cx
+	  	push bx
+	  	push dx 
+
 endm

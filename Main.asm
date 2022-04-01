@@ -57,6 +57,10 @@ _resultS        db 10 dup(' '), "$" ; Sirve para almacenar el result en String
 _numero1S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 1 en String
 _numero2S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 2 en String
 _numero3S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
+_OPERAS         db 50 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
+_OPERASCompare  db 50 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
+_indice0        dw 0
+_indicef        dw 0
 _numero1        dw 0                ; Sirve para almacenar el numero 1 en int
 _numero2        dw 0                ; Sirve para almacenar el numero 2 en int
 _numero3        dw 0                ; Sirve para almacenar el numero 2 en int

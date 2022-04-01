@@ -181,12 +181,14 @@ endm
 Solicitar_Numero macro cadenaNumero, numeroConvertido
 	mov ah, 3fh 					; int21 para leer fichero o dispositivo
 	mov bx, 00 						; handel para leer el teclado
-	mov cx, 10 						; bytes a leer (aca las definimos con 10)
+	mov cx, 20 						; bytes a leer (aca las definimos con 10)
 	mov dx, offset[cadenaNumero]
 	int 21h
 	GetAC cadenaNumero
-	cmp cadenaNumero,65h  ; Codigo ASCCI [e -> Hexadecimal] salir del programa
-	je Lmenu
+	GetEND cadenaNumero
+	GetEVAL cadenaNumero,numeroConvertido
+	;cmp cadenaNumero,'d7h'  ; Codigo ASCCI [END -> Hexadecimal] salir del programa
+	;je Lmenu
 	
 	; Convertimos la cadena a numero es guardado en AX
 	String_Int cadenaNumero
@@ -328,4 +330,121 @@ GetPotencia macro _result, _num1S, _num1I, _num2I, _numTemp
 		GetPrint _resultado
     GetPrint _num1S
 	
+endm
+
+
+
+GetEND macro palabra
+	LOCAL _Lend1, _Lend2, _Lout
+	push ax
+  push cx
+  push bx
+  push dx 
+  xor SI, SI ; contador para el contenedor
+	xor DI, DI ; contador para posiciones
+	xor ax, ax 
+	xor cx, cx ; usado
+	xor bx, bx ; usado
+	xor dx, dx 
+  
+	; 13
+	cmp palabra[SI], 45h ; Codigo ASCCI [E -> Hexadecimal]
+	je _Lend1	
+	jmp _Lout
+
+	_Lend1:
+		INC SI
+		cmp palabra[SI], 4eh ; Codigo ASCCI [N -> Hexadecimal]
+		je _Lend2
+		jmp _Lout
+
+	_Lend2:
+		INC SI
+		Cmp palabra[SI], 44h ; Codigo ASCCI [D -> Hexadecimal]
+		je Lmenu
+		jmp _Lout
+
+	_Lout:
+
+endm
+
+
+GetEVAL macro palabra, numeroConvertido
+	LOCAL _Lend1, _Lend2, _Lend3, _Lend4, _Lout, _Lout2, _Lconca
+	push ax
+  push cx
+  push bx
+  push dx 
+  xor SI, SI ; contador para el contenedor
+	xor DI, DI ; contador para posiciones
+	xor BX, BX ; contador para posiciones
+	xor ax, ax 
+	xor cx, cx ; usado
+	xor bx, bx ; usado
+	xor dx, dx  
+
+	; 13
+	cmp palabra[SI], 45h ; Codigo ASCCI [E -> Hexadecimal]
+	je _Lend1	
+	jmp _Lout
+
+	_Lend1:
+		INC SI
+		cmp palabra[SI], 56h ; Codigo ASCCI [V -> Hexadecimal]
+		je _Lend2
+		jmp _Lout
+
+	_Lend2:
+		INC SI
+		Cmp palabra[SI], 41h ; Codigo ASCCI [A -> Hexadecimal]
+		je _Lend3
+		jmp _Lout
+
+	_Lend3:
+		INC SI
+		Cmp palabra[SI], 4ch ; Codigo ASCCI [L -> Hexadecimal]
+		je _Lend4
+		jmp _Lout
+
+
+	_Lend4:
+		INC SI
+		cmp palabra[SI], 20h ; Codigo ASCCI [space -> Hexadecimal]
+		je _Lend4
+		cmp palabra[SI], 24h ; Codigo ASCCI [$ -> Hexadecimal]
+		je _Lout
+		
+	
+
+		XOR AX, AX
+		mov al,palabra[SI]
+		mov _OPERAS[BX], AL
+		INC BX
+		
+		jmp _Lconca
+
+	_Lconca:
+		INC SI
+		XOR AX, AX
+		mov al,palabra[SI]
+		
+		cmp palabra[SI], 24h ; Codigo ASCCI [$ -> Hexadecimal]
+		je _Lout2
+		mov _OPERAS[BX], AL
+		INC BX
+		jmp _Lconca
+	_Lout2:
+		
+		GetPrint _OPERAS
+		GetPrint _salto
+
+
+		
+		jmp _Lout
+	_Lout:
+		push ax
+	  push cx
+	  push bx
+	  push dx 
+
 endm

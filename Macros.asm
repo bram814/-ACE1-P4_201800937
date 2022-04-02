@@ -81,9 +81,51 @@ GetReadFile macro handler,buffer,numbytes
 endm
 
 
-; *************** [CALCULADORA] **************************
 
-; =================== METODOS PARA LA CALCULADORA ======================
+; pendiente el de crear escribir
+;======================== MACRO CREAR ARCHIVO (any extension) ===================
+GetCreateFile macro buffer,handler
+    MOV AX,@data
+    MOV DS,AX
+    MOV AH,3ch
+    MOV CX,00h
+    LEA DX,buffer
+    INT 21h
+    ;jc Error4
+    MOV handler, AX
+endm
+; ========================= MACRO ESCRIBIR EN ARCHIVO YA CREADO =================
+
+GetWriteFile macro handler, buffer
+    LOCAL ciclo_Ini, ciclo_Fin
+    MOV AX,@data
+    MOV DS,AX
+    ; MOV AH,40h
+    ; MOV BX,handler
+    ; MOV CX, SIZEOF buffer 
+
+    XOR BX, BX
+    XOR AX, AX 
+    ciclo_Ini:
+      MOV AL, buffer[ BX ]
+      CMP AL, '$'
+      JE ciclo_Fin
+
+      INC BX 
+      JMP ciclo_Ini
+    ciclo_Fin:
+    XOR AX, AX
+
+    MOV contadorBuffer, BX
+    XOR BX, BX
+    
+    MOV AH,40h
+    MOV BX,handler
+    MOV CX, contadorBuffer
+    LEA DX, buffer
+    INT 21h
+endm
+; *************** [CALCULADORA] **************************
 
 ;convierte un NUMERO a CADENA que esta guardado en AX 
 Int_String macro intNum
@@ -237,60 +279,6 @@ GetAC macro palabra
 
 endm
 
-
-
-
-GetAnalizador macro text
-	local _Lout, _Lerror, _Linput, _Linput2, _LcalculosL
-	push ax
-  push cx
-  push bx
-  push dx 
-  xor SI, SI ; contador para el contenedor
-	xor DI, DI ; contador para posiciones
-	xor ax, ax 
-	xor cx, cx ; usado
-	xor bx, bx ; usado
-	xor dx, dx 
-
-	cmp text[SI],7bh
-	je _Linput
-	jmp _Lout
-	_Linput:
-		inc SI
-		cmp text[SI],22h
-		je _Linput2
-		jmp _Lout
-
-	_Linput2:
-		inc SI
-		xor ch,ch
-		mov cl,text[SI]
-		add bx,cx
-
-		cmp entrada[SI], '$' ; por si hay errore en el archivo
-    	je _Lerror
-
-		cmp bx,356h	 ; Codigo ASCCI [calculos -> Hexadecimal]
-		je _LcalculosL
-
-		jmp _Linput2
-
-	_LcalculosL:
-		; aca ya esta en el perron
-
-	_Lerror:
-		GetPrint _error6
-		jmp _Lout
-	_Lout:
-			push ax
-	  	push cx
-	  	push bx
-	  	push dx 
-
-endm
-
-
 GetPotencia macro _result, _num1S, _num1I, _num2I, _numTemp
 	LOCAL _Lout, _L0, _Lpote
 	push ax
@@ -437,6 +425,7 @@ GetEVAL macro palabra, numeroConvertido
 		
 		GetPrint _OPERAS
 		GetPrint _salto
+		GetAnalizador _bufferInfo
 
 
 		
@@ -446,5 +435,186 @@ GetEVAL macro palabra, numeroConvertido
 	  push cx
 	  push bx
 	  push dx 
+
+endm
+
+
+
+
+GetAnalizador macro text
+	local _Lout, _Lerror, _Linput, _Linput2, _LcalculosL, _L0, Lllavea,_calculo1, _calculo2, _calculo3, _calculo4, _calculo5, _calculo6, _calculo7, _calculo8, _calculo9, _calculo10, _calculo11
+	push ax
+  push cx
+  push bx
+  push dx 
+  xor SI, SI ; contador para el contenedor
+	xor DI, DI ; contador para posiciones
+	xor BX, BX ; contador para posiciones
+	xor ax, ax 
+	xor cx, cx ; usado
+	xor bx, bx ; usado
+	xor dx, dx 
+	; GetPrint text
+	Lllavea:
+
+		cmp text[SI],7bh  ; Codigo ASCCI [{ -> Hexadecimal]
+		je _Linput
+		INC SI
+		jmp Lllavea
+
+	_Linput:
+
+		inc SI
+		cmp text[SI],22h ;Codigo ASCCI [" -> Hexadecimal]
+		je _Linput2
+		jmp _Linput
+
+	_Linput2:
+
+		inc SI
+
+		cmp text[SI],63h	 ; Codigo ASCCI [c -> Hexadecimal]
+		je _calculo1
+		jmp _Lout
+
+	_calculo1:
+		inc SI
+
+		cmp text[SI],61h	 ; Codigo ASCCI [a -> Hexadecimal]
+		je _calculo2
+		jmp _Lout
+
+	_calculo2:
+		inc SI
+
+		cmp text[SI],6ch	 ; Codigo ASCCI [l -> Hexadecimal]
+		je _calculo3
+		jmp _Lout
+
+	_calculo3:
+
+		inc SI
+		cmp text[SI],63h	 ; Codigo ASCCI [c -> Hexadecimal]
+		je _calculo4
+		jmp _Lout
+
+	_calculo4:
+		inc SI
+		cmp text[SI],75h	 ; Codigo ASCCI [u -> Hexadecimal]
+		je _calculo5
+		jmp _Lout
+
+	_calculo5:
+		inc SI
+		cmp text[SI],6ch	 ; Codigo ASCCI [l -> Hexadecimal]
+		je _calculo6
+		jmp _Lout
+
+	_calculo6:
+		inc SI
+		cmp text[SI],6fh	 ; Codigo ASCCI [o -> Hexadecimal]
+		je _calculo7
+		jmp _Lout
+
+	_calculo7:
+		inc SI
+		cmp text[SI],73h	 ; Codigo ASCCI [s -> Hexadecimal]
+		je _calculo8
+		jmp _Lout
+
+	_calculo8:
+		inc SI
+		cmp text[SI],22h	 ; Codigo ASCCI [" -> Hexadecimal]
+		je _calculo9
+		jmp _Lout
+
+
+	_calculo9:
+		inc SI
+		cmp text[SI],3ah	 ; Codigo ASCCI [: -> Hexadecimal]
+		je _calculo10
+		jmp _calculo9
+
+	_calculo10:
+		inc SI
+		cmp text[SI],3ah	 ; Codigo ASCCI [: -> Hexadecimal]
+		je _calculo11
+		jmp _calculo10
+
+	_calculo11:
+		inc SI
+		cmp text[SI],5bh	 ; Codigo ASCCI [: -> Hexadecimal]
+		je _LcalculosL
+		jmp _calculo11
+
+	_LcalculosL:
+		
+		inc SI
+
+		GetPrint _resultado
+		jmp _Lout
+
+	_L0:
+		; inc SI
+
+		mov _indice0, SI
+		GetOperacion text
+		jmp _Lout
+
+	_Lerror:
+		GetPrint _error6
+		jmp _Lout
+	_Lout:
+			push ax
+	  	push cx
+	  	push bx
+	  	push dx 
+
+endm
+
+
+
+GetOperacion macro text
+	LOCAL L0, Lin, Lout, Lcompare
+	push ax
+  push cx
+  push bx
+  push dx
+	xor BX, BX ; contador para posiciones
+
+	L0:
+		INC SI
+	  mov SI,_indice0
+
+		cmp text[SI], 22h ; Codigo ASCCI [" -> Hexadecimal]
+		je Lin
+		jmp L0
+
+	Lin:
+		INC SI
+		XOR AX, AX
+		mov al,text[SI]
+		cmp text[SI], 22h ; Codigo ASCCI [" -> Hexadecimal]
+		je Lout
+
+		mov _OPERASCompare[BX],al 
+		jmp Lin
+
+
+
+	Lcompare:
+			GetPrint _OPERAS 
+			GetPrint _salto
+			GetPrint _OPERASCompare
+			GetPrint _salto
+			jmp Lout
+
+	Lout:
+
+		push ax
+	  push cx
+	  push bx
+	  push dx
+
 
 endm

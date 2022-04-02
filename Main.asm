@@ -19,6 +19,7 @@ _opcion         db 0ah,0dh,               "> Ingrese Opcion: $"
 _regresar       db 0ah,0dh,               "1. regresar$"
 _num            db                        "> ", "$"
 _resultado      db 0ah,0dh,               "> resultado es ", "$"
+_reporte        db 50 dup('$')
 ; ************** [ERRORES] **************
 _error1         db 0ah,0dh,               "> Error al Abrir Archivo, no Existe ",   "$"
 _error2         db 0ah,0dh,               "> Error al Cerrar Archivo",              "$"
@@ -26,14 +27,15 @@ _error3         db 0ah,0dh,               "> Error al Escribir el Archivo",     
 _error4         db 0ah,0dh,               "> Error al Crear el Archivo",            "$"
 _error5         db 0ah,0dh,               "> Error al Leer al Archivo",             "$"
 _error6         db 0ah,0dh,               "> Error en el Archivo",                  "$"
+_error7         db 0ah,0dh,               "> Error al crear el Archivo",                  "$"
 ; ************** [IDENTIFICADOR] **************
 _cadena1        db 0ah,0dh,               "Universidad de San Carlos de Guatemala$"
 _cadena2        db 0ah,0dh,               "Facultad de Ingenieria$"
 _cadena3        db 0ah,0dh,               "Escuela de Ciencias y Sistemas$"
 _cadena4        db 0ah,0dh,               "Arquitectura de Compiladores y ensambladores 1$"
-_cadena5        db 0ah,0dh,               "Seccion <A>$"
-_cadena6        db 0ah,0dh,               "<Jose Abraham Solorzano Herrera>$"
-_cadena7        db 0ah,0dh,               "<201800937>$"
+_cadena5        db 0ah,0dh,               "Seccion A$"
+_cadena6        db 0ah,0dh,               "Jose Abraham Solorzano Herrera$"
+_cadena7        db 0ah,0dh,               "201800937$"
 ; ************** [MENU] **************
 _cadena8        db 0ah,0dh,               "1. Calculadora$"
 _cadena9        db 0ah,0dh,               "2. Archivo$"
@@ -67,10 +69,45 @@ _numero3        dw 0                ; Sirve para almacenar el numero 2 en int
 _numeroTemp     dw 0                ; Sirve para almacenar el numero 2 en int
 _calcuResultado dw 0                ; Sirve para almacenar el Resultado
 
+_createFile     db 'reporte.jso' ; variable para crear archivo
+_reporteHandle  dw ?
+_Reporte0S      db 0ah,0dh,               "{",'$'
+_Reporte1S      db 0ah,0dh,               '     "reporte":[ $'
+_Reporte2S      db 0ah,0dh,               '         "Datos":{ $'
+_Reporte3S      db 0ah,0dh,               '             "nombre":"Jose Abraham Solorzano Herrera",$'
+_Reporte4S      db 0ah,0dh,               '             "carnet":"201800937",$'
+_Reporte5S      db 0ah,0dh,               '             "curso":"Arquitectura de compiladores y ensambladores 1",$'
+_Reporte6S      db 0ah,0dh,               '             "seccion":"A"$'
+_Reporte7S      db 0ah,0dh,               '         }, $'
+_Reporte8S      db 0ah,0dh,               '         "Fecha":{ $'
+_Reporte9S      db 0ah,0dh,               '             "Dia":"",$'
+_Reporte10S     db 0ah,0dh,               '             "Mes":"",$'
+_Reporte11S     db 0ah,0dh,               '             "Año":""$'
+_Reporte12S     db 0ah,0dh,               '         }, $'
+_Reporte13S     db 0ah,0dh,               '         "Hora":{ $'
+_Reporte14S     db 0ah,0dh,               '             "hora":"",$'
+_Reporte15S     db 0ah,0dh,               '             "minuto":"",$'
+_Reporte16S     db 0ah,0dh,               '             "segundo":""$'
+_Reporte17S     db 0ah,0dh,               '         }, $'
+_Reporte18S     db 0ah,0dh,               '         "Estadísticos":{ $'
+_Reporte19S     db 0ah,0dh,               '             "media":"",$'
+_Reporte20S     db 0ah,0dh,               '             "mediana":"",$'
+_Reporte21S     db 0ah,0dh,               '             "moda":"",$'
+_Reporte22S     db 0ah,0dh,               '             "impares":"",$'
+_Reporte23S     db 0ah,0dh,               '             "pares":"",$'
+_Reporte24S     db 0ah,0dh,               '             "primos":""$'
+_Reporte25S     db 0ah,0dh,               '         }, $'
+_Reporte26S     db 0ah,0dh,               '         "Operaciones":[ $'
+_Reporte27S     db 0ah,0dh,               '         ]$'
+_Reporte28S     db 0ah,0dh,               '    ]$'
+_Reporte29S     db 0ah,0dh,               '}$'
+
 
 _bufferInput    db 50 dup('$')
 _handleInput    dw ? 
 _bufferInfo     db 2000 dup('$')
+contadorBuffer dw 0 ; Contador para todos los WRITE FILE, para escribir sin que se vean los $
+
 
 ; ************************************* [PROCS] *************************************
 
@@ -127,6 +164,7 @@ funcCalculadora proc far
     GetPrint _salto
     ret
 funcCalculadora endp
+
 
 .code
 
@@ -393,7 +431,57 @@ main proc
         GetPrint _salto
         GetPrint _error5
         jmp Lmenu
+    Lerror7:
+        GetPrint _salto
+        GetPrint _error7
+        jmp Lsalir
     Lsalir:
+
+
+        mov _reporteHandle,0
+        GetCreateFile _createFile, _reporteHandle
+
+        ; 8 13 18 26
+
+        ; DATOS 
+        GetWriteFile _reporteHandle, _Reporte0S
+        GetWriteFile _reporteHandle, _Reporte1S
+        GetWriteFile _reporteHandle, _Reporte2S
+        GetWriteFile _reporteHandle, _Reporte3S
+        GetWriteFile _reporteHandle, _Reporte4S
+        GetWriteFile _reporteHandle, _Reporte5S
+        GetWriteFile _reporteHandle, _Reporte6S
+        GetWriteFile _reporteHandle, _Reporte7S
+        ; FECHA
+        GetWriteFile _reporteHandle, _Reporte8S
+        GetWriteFile _reporteHandle, _Reporte9S
+        GetWriteFile _reporteHandle, _Reporte10S
+        GetWriteFile _reporteHandle, _Reporte11S
+        GetWriteFile _reporteHandle, _Reporte12S
+        ; HORA
+        GetWriteFile _reporteHandle, _Reporte13S
+        GetWriteFile _reporteHandle, _Reporte14S
+        GetWriteFile _reporteHandle, _Reporte15S
+        GetWriteFile _reporteHandle, _Reporte16S
+        GetWriteFile _reporteHandle, _Reporte17S
+        ; ESTADISTICOS
+        GetWriteFile _reporteHandle, _Reporte18S
+        GetWriteFile _reporteHandle, _Reporte19S
+        GetWriteFile _reporteHandle, _Reporte20S
+        GetWriteFile _reporteHandle, _Reporte21S
+        GetWriteFile _reporteHandle, _Reporte22S
+        GetWriteFile _reporteHandle, _Reporte23S
+        GetWriteFile _reporteHandle, _Reporte24S
+        GetWriteFile _reporteHandle, _Reporte25S
+        ; OPERACIONES
+        GetWriteFile _reporteHandle, _Reporte26S
+        GetWriteFile _reporteHandle, _Reporte27S
+        GetWriteFile _reporteHandle, _Reporte28S
+        GetWriteFile _reporteHandle, _Reporte29S
+
+       
+        
+
         mov ax,4c00h
         int 21h
 

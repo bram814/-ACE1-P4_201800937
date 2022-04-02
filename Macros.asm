@@ -81,9 +81,7 @@ GetReadFile macro handler,buffer,numbytes
 endm
 
 
-
-; pendiente el de crear escribir
-;======================== MACRO CREAR ARCHIVO (any extension) ===================
+; ************** [PATH][CREATE] **************
 GetCreateFile macro buffer,handler
     MOV AX,@data
     MOV DS,AX
@@ -94,8 +92,7 @@ GetCreateFile macro buffer,handler
     ;jc Error4
     MOV handler, AX
 endm
-; ========================= MACRO ESCRIBIR EN ARCHIVO YA CREADO =================
-
+; ************** [PATH][WRITE] **************
 GetWriteFile macro handler, buffer
     LOCAL ciclo_Ini, ciclo_Fin
     MOV AX,@data
@@ -125,6 +122,142 @@ GetWriteFile macro handler, buffer
     LEA DX, buffer
     INT 21h
 endm
+
+GetWriteFileN macro handler, buffer
+    LOCAL ciclo_Ini, ciclo_Fin
+    MOV AX,@data
+    MOV DS,AX
+
+    MOV AH,40h
+    MOV BX, handler
+    MOV CX, SIZEOF buffer 
+    LEA DX, buffer
+    INT 21h
+endm
+
+; ************** [DATE][WRITE] **************
+GetWriteDate macro handler, digito1, digito2
+
+  MOV AH, 2AH 
+  INT 21H 
+  MOV digito1, 0
+  MOV digito2, 0
+  MOV AL, DL 
+
+	; FECHA
+  GetWriteFile handler, _Reporte8S
+  ; DIA ---- 9
+  GuardarDigitos digito1, digito2
+
+	GetWriteFile handler, _Reporte9S
+  GetWriteFile handler, _Reporte30S
+  GetWriteFileN handler, digito1
+  GetWriteFileN handler, digito2 
+  GetWriteFile handler, _Reporte30S
+  GetWriteFile handler, _Reporte31S
+  GetWriteFile handler, _salto
+  ; WriteFile handler, diagonal
+
+  ; MES ---- 10
+  MOV AH, 2AH 
+  INT 21H 
+  MOV digito1, 0 
+  MOV digito2, 0
+  MOV AL, DH 
+
+  GuardarDigitos digito1, digito2
+
+  GetWriteFile handler, _Reporte10S
+  GetWriteFile handler, _Reporte30S
+  GetWriteFileN handler, digito1
+  GetWriteFileN handler, digito2 
+  GetWriteFile handler, _Reporte30S
+  GetWriteFile handler, _Reporte31S
+  GetWriteFile handler, _salto
+
+  ; AÑO --- 11
+  MOV AH, 2AH 
+  INT 21H
+  MOV digito1, 0
+  MOV digito2, 0
+  ADD CX, 0F830h
+  MOV AX, CX 
+
+  GuardarDigitos digito1, digito2 
+  
+  GetWriteFile handler, _Reporte11S
+  GetWriteFile handler, _Reporte30S
+  GetWriteFileN handler, digito1
+  GetWriteFileN handler, digito2 
+  GetWriteFile handler, _Reporte30S
+  GetWriteFile handler, _salto
+
+  
+  GetWriteFile handler, _Reporte12S
+
+  ; HORA
+  GetWriteFile handler, _Reporte13S
+  MOV AH, 2Ch
+  INT 21H 
+
+  ; HORA -------- 14 
+  MOV AL, CH 
+  GuardarDigitos digito1, digito2
+  
+  GetWriteFile handler, _Reporte14S
+  GetWriteFile handler, _Reporte30S
+  GetWriteFileN handler, digito1
+  GetWriteFileN handler, digito2 
+  GetWriteFile handler, _Reporte30S
+  GetWriteFile handler, _Reporte31S
+  GetWriteFile handler, _salto
+
+  ; MINUTOS	------- 15
+  MOV AH, 2Ch
+  INT 21h
+  MOV digito1, 0
+  MOV digito2, 0
+  MOV AL, CL 
+
+  GuardarDigitos digito1, digito2
+  
+  GetWriteFile handler, _Reporte15S
+  GetWriteFile handler, _Reporte30S
+  GetWriteFileN handler, digito1
+  GetWriteFileN handler, digito2 
+  GetWriteFile handler, _Reporte30S
+  GetWriteFile handler, _Reporte31S
+  GetWriteFile handler, _salto
+
+  ; SEGUNDOS -------- 16
+  MOV AH, 2Ch
+  INT 21H
+  MOV digito1, 0
+  MOV digito2, 0
+  MOV AL, DH 
+
+  GuardarDigitos digito1, digito2
+  
+  GetWriteFile handler, _Reporte16S
+  GetWriteFile handler, _Reporte30S
+  GetWriteFileN handler, digito1
+  GetWriteFileN handler, digito2 
+  GetWriteFile handler, _Reporte30S
+  GetWriteFile handler, _salto
+
+
+  GetWriteFile handler, _Reporte17S
+endm
+
+GuardarDigitos MACRO _digito1, _digito2
+  AAM
+  MOV BX, AX
+  ADD BX, 3030h
+
+  MOV _digito1, BH
+  MOV _digito2, BL
+endm
+
 ; *************** [CALCULADORA] **************************
 
 ;convierte un NUMERO a CADENA que esta guardado en AX 

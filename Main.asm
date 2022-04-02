@@ -80,14 +80,14 @@ _Reporte5S      db 0ah,0dh,               '             "curso":"Arquitectura de
 _Reporte6S      db 0ah,0dh,               '             "seccion":"A"$'
 _Reporte7S      db 0ah,0dh,               '         }, $'
 _Reporte8S      db 0ah,0dh,               '         "Fecha":{ $'
-_Reporte9S      db 0ah,0dh,               '             "Dia":"",$'
-_Reporte10S     db 0ah,0dh,               '             "Mes":"",$'
-_Reporte11S     db 0ah,0dh,               '             "Año":""$'
+_Reporte9S      db 0ah,0dh,               '             "Dia":$'
+_Reporte10S     db 0ah,0dh,               '             "Mes":$'
+_Reporte11S     db 0ah,0dh,               '             "Año":$'
 _Reporte12S     db 0ah,0dh,               '         }, $'
 _Reporte13S     db 0ah,0dh,               '         "Hora":{ $'
-_Reporte14S     db 0ah,0dh,               '             "hora":"",$'
-_Reporte15S     db 0ah,0dh,               '             "minuto":"",$'
-_Reporte16S     db 0ah,0dh,               '             "segundo":""$'
+_Reporte14S     db 0ah,0dh,               '             "hora":$'
+_Reporte15S     db 0ah,0dh,               '             "minuto":$'
+_Reporte16S     db 0ah,0dh,               '             "segundo":$'
 _Reporte17S     db 0ah,0dh,               '         }, $'
 _Reporte18S     db 0ah,0dh,               '         "Estadísticos":{ $'
 _Reporte19S     db 0ah,0dh,               '             "media":"",$'
@@ -101,13 +101,18 @@ _Reporte26S     db 0ah,0dh,               '         "Operaciones":[ $'
 _Reporte27S     db 0ah,0dh,               '         ]$'
 _Reporte28S     db 0ah,0dh,               '    ]$'
 _Reporte29S     db 0ah,0dh,               '}$'
+_Reporte30S     db                        '"$'
+_Reporte31S     db                        ',$'
+
 
 
 _bufferInput    db 50 dup('$')
 _handleInput    dw ? 
 _bufferInfo     db 2000 dup('$')
 contadorBuffer dw 0 ; Contador para todos los WRITE FILE, para escribir sin que se vean los $
-
+; ************************************ [DATE] ************************************
+_digito1 db 0
+_digito2 db 0
 
 ; ************************************* [PROCS] *************************************
 
@@ -452,18 +457,19 @@ main proc
         GetWriteFile _reporteHandle, _Reporte5S
         GetWriteFile _reporteHandle, _Reporte6S
         GetWriteFile _reporteHandle, _Reporte7S
-        ; FECHA
-        GetWriteFile _reporteHandle, _Reporte8S
-        GetWriteFile _reporteHandle, _Reporte9S
-        GetWriteFile _reporteHandle, _Reporte10S
-        GetWriteFile _reporteHandle, _Reporte11S
-        GetWriteFile _reporteHandle, _Reporte12S
-        ; HORA
-        GetWriteFile _reporteHandle, _Reporte13S
-        GetWriteFile _reporteHandle, _Reporte14S
-        GetWriteFile _reporteHandle, _Reporte15S
-        GetWriteFile _reporteHandle, _Reporte16S
-        GetWriteFile _reporteHandle, _Reporte17S
+        GetWriteDate _reporteHandle, _digito1, _digito2
+        
+        ; GetWriteFile _reporteHandle, _Reporte8S
+        ; GetWriteFile _reporteHandle, _Reporte9S
+        ; GetWriteFile _reporteHandle, _Reporte10S
+        ; GetWriteFile _reporteHandle, _Reporte11S
+        ; GetWriteFile _reporteHandle, _Reporte12S
+        ; ; HORA
+        ; GetWriteFile _reporteHandle, _Reporte13S
+        ; GetWriteFile _reporteHandle, _Reporte14S
+        ; GetWriteFile _reporteHandle, _Reporte15S
+        ; GetWriteFile _reporteHandle, _Reporte16S
+        ; GetWriteFile _reporteHandle, _Reporte17S
         ; ESTADISTICOS
         GetWriteFile _reporteHandle, _Reporte18S
         GetWriteFile _reporteHandle, _Reporte19S
@@ -479,7 +485,7 @@ main proc
         GetWriteFile _reporteHandle, _Reporte28S
         GetWriteFile _reporteHandle, _Reporte29S
 
-       
+
         
 
         mov ax,4c00h

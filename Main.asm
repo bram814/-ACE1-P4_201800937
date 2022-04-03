@@ -63,6 +63,7 @@ _numero2S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 2 en String
 _numero3S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _numeroParS     db 10 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _numeroImparS   db 10 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
+_numeroPrimoS   db 10 dup(' '), "$"
 _OPERAS         db 50 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _OPERASCompare  db 50 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _cadenaParImpar db 50 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
@@ -73,6 +74,8 @@ _numero2        dw 0                ; Sirve para almacenar el numero 2 en int
 _numero3        dw 0                ; Sirve para almacenar el numero 2 en int
 _numeroPar      dw 0                ; Sirve para almacenar el numero 2 en int
 _numeroImpar    dw 0                ; Sirve para almacenar el numero 2 en int
+_numeroPrimo    dw 0 
+_contPrimo      dw 0
 _numeroTemp     dw 0                ; Sirve para almacenar el numero 2 en int
 _calcuResultado dw 0                ; Sirve para almacenar el Resultado
 
@@ -102,7 +105,7 @@ _Reporte20S     db 0ah,0dh,               '             "mediana":"",$'
 _Reporte21S     db 0ah,0dh,               '             "moda":"",$'
 _Reporte22S     db 0ah,0dh,               '             "impares":$'
 _Reporte23S     db 0ah,0dh,               '             "pares":$'
-_Reporte24S     db 0ah,0dh,               '             "primos":""$'
+_Reporte24S     db 0ah,0dh,               '             "primos":$'
 _Reporte25S     db 0ah,0dh,               '         }, $'
 _Reporte26S     db 0ah,0dh,               '         "Operaciones":[ $'
 _Reporte27S     db 0ah,0dh,               '         ]$'
@@ -294,6 +297,7 @@ main proc
         String_Int _numero1S
         mov _numero1, ax
         GetImparPar
+        GetPrimo _numero1
         
         
         GetPrint _num ; Obtenemos el segundo número
@@ -337,12 +341,14 @@ main proc
         String_Int _numero1S
         mov _numero1, ax
         GetImparPar
+        GetPrimo _numero1
         GetPrint _salto
         GetPrint _num ; Obtenemos el primer número
         GetPrint _numero2S
         String_Int _numero2S
         mov _numero2, ax
         GetImparPar
+        GetPrimo _numero2
         GetPrint _salto
 
     
@@ -501,8 +507,9 @@ main proc
         GetWriteFile _reporteHandle, _Reporte23S
         GetWriteFile _reporteHandle, _numeroParS
         GetWriteFile _reporteHandle, _Reporte31S
-
+        ; PRIMO
         GetWriteFile _reporteHandle, _Reporte24S
+        GetWriteFile _reporteHandle, _numeroPrimoS
         GetWriteFile _reporteHandle, _Reporte25S
         ; OPERACIONES
         GetWriteFile _reporteHandle, _Reporte26S
@@ -510,7 +517,7 @@ main proc
         GetWriteFile _reporteHandle, _Reporte28S
         GetWriteFile _reporteHandle, _Reporte29S
 
-
+        GetPrint _numeroPrimoS
         
 
         mov ax,4c00h

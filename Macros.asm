@@ -358,6 +358,7 @@ Solicitar_Numero macro cadenaNumero, numeroConvertido
 	String_Int cadenaNumero
 	mov numeroConvertido, ax 		; Guardar en el "int"
 	GetImparPar
+	GetPrimo numeroConvertido
 endm
 
 ;limpiar variables
@@ -788,6 +789,54 @@ GetImparPar macro
 	salir: 
 	
 	
+endm
+
+GetPrimo macro num
+	local ciclo, primo, noPrimo, salir, isPrimo, notPrimo
+ 	mov _contPrimo,0
+ 	mov BX,1
+
+    ciclo:
+ 
+      cmp BX,num
+      jg salir
+      xor ax,ax
+       mov ax,num
+      div bl
+      ; ;compara
+
+      cmp ah,0
+      je primo
+      jne noPrimo
+
+
+      primo:
+         inc _contPrimo
+         inc BX
+         jmp ciclo
+      
+      noPrimo:
+          inc BX
+          jmp ciclo
+
+    salir: 
+
+
+    cmp _contPrimo,2
+    jz isPrimo
+    jnz notPrimo
+
+
+    isPrimo:
+    	mov dx, _numeroPrimo
+	    add dx, 1
+	    mov _numeroPrimo, dx
+	    mov ax, _numeroPrimo
+	    Int_String _numeroPrimoS
+        
+    notPrimo:
+
+        
 endm
 
 

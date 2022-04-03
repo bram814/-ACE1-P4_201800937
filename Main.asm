@@ -53,19 +53,26 @@ _cadena18       db 0ah,0dh,               "2. Cerrar Archivo ",     "$"
 _cadena19       db 0ah,0dh,               "3. Mostrar Contenido",   "$"
 _cadena20       db 0ah,0dh,               "4. Regresar",            "$"
 ; ************** [CALCULADORA] **************
+_PAR            db 0ah,0dh, "Cantidad de Numeros Pares Reconocidos: $"
+_IMPAR          db 0ah,0dh, "Cantidad de Numeros Impares Reconocidos: $"
 _cadena21       db 0ah,0dh,               "Calculadora",            "$"
 _cadena22       db 0ah,0dh,               "==============================",  "$"
 _resultS        db 10 dup(' '), "$" ; Sirve para almacenar el result en String
 _numero1S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 1 en String
 _numero2S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 2 en String
 _numero3S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
+_numeroParS     db 10 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
+_numeroImparS   db 10 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _OPERAS         db 50 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _OPERASCompare  db 50 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
+_cadenaParImpar db 50 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _indice0        dw 0
 _indicef        dw 0
 _numero1        dw 0                ; Sirve para almacenar el numero 1 en int
 _numero2        dw 0                ; Sirve para almacenar el numero 2 en int
 _numero3        dw 0                ; Sirve para almacenar el numero 2 en int
+_numeroPar      dw 0                ; Sirve para almacenar el numero 2 en int
+_numeroImpar    dw 0                ; Sirve para almacenar el numero 2 en int
 _numeroTemp     dw 0                ; Sirve para almacenar el numero 2 en int
 _calcuResultado dw 0                ; Sirve para almacenar el Resultado
 
@@ -93,8 +100,8 @@ _Reporte18S     db 0ah,0dh,               '         "Estadísticos":{ $'
 _Reporte19S     db 0ah,0dh,               '             "media":"",$'
 _Reporte20S     db 0ah,0dh,               '             "mediana":"",$'
 _Reporte21S     db 0ah,0dh,               '             "moda":"",$'
-_Reporte22S     db 0ah,0dh,               '             "impares":"",$'
-_Reporte23S     db 0ah,0dh,               '             "pares":"",$'
+_Reporte22S     db 0ah,0dh,               '             "impares":$'
+_Reporte23S     db 0ah,0dh,               '             "pares":$'
 _Reporte24S     db 0ah,0dh,               '             "primos":""$'
 _Reporte25S     db 0ah,0dh,               '         }, $'
 _Reporte26S     db 0ah,0dh,               '         "Operaciones":[ $'
@@ -174,7 +181,7 @@ funcCalculadora endp
 .code
 
 main proc
-
+    
     Linicio:
         ; LLamamos identificador 
         call identificador
@@ -250,6 +257,9 @@ main proc
      
         GetPrint _num
         GetInputMax _resultS
+        GetAC _resultS
+        GetEND _resultS
+        GetPrintCommand _resultS
 
         cmp _resultS,2BH ; Codigo ASCCI [+ -> Hexadecimal]
         je Lsuma
@@ -283,6 +293,7 @@ main proc
         GetPrint _salto
         String_Int _numero1S
         mov _numero1, ax
+        GetImparPar
         
         
         GetPrint _num ; Obtenemos el segundo número
@@ -310,6 +321,9 @@ main proc
 
         GetPrint _num
         GetInputMax _resultS
+        GetAC _resultS
+        GetEND _resultS
+        GetPrintCommand _resultS
         cmp _resultS,5EH ; Codigo ASCCI [^ -> Hexadecimal]
         je Lpotencia2
 
@@ -322,16 +336,19 @@ main proc
         GetPrint _numero1S
         String_Int _numero1S
         mov _numero1, ax
+        GetImparPar
         GetPrint _salto
         GetPrint _num ; Obtenemos el primer número
         GetPrint _numero2S
         String_Int _numero2S
         mov _numero2, ax
+        GetImparPar
         GetPrint _salto
 
     
         GetPrint _num
         GetInputMax _resultS
+
 
         cmp _resultS,2BH ; Codigo ASCCI [+ -> Hexadecimal]
         je Lsuma
@@ -475,8 +492,16 @@ main proc
         GetWriteFile _reporteHandle, _Reporte19S
         GetWriteFile _reporteHandle, _Reporte20S
         GetWriteFile _reporteHandle, _Reporte21S
+        ; IMPAR
         GetWriteFile _reporteHandle, _Reporte22S
+        GetWriteFile _reporteHandle, _numeroImparS
+        GetWriteFile _reporteHandle, _Reporte31S
+        
+        ; PAR
         GetWriteFile _reporteHandle, _Reporte23S
+        GetWriteFile _reporteHandle, _numeroParS
+        GetWriteFile _reporteHandle, _Reporte31S
+
         GetWriteFile _reporteHandle, _Reporte24S
         GetWriteFile _reporteHandle, _Reporte25S
         ; OPERACIONES

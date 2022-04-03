@@ -150,10 +150,8 @@ GetWriteDate macro handler, digito1, digito2
   GuardarDigitos digito1, digito2
 
 	GetWriteFile handler, _Reporte9S
-  GetWriteFile handler, _Reporte30S
   GetWriteFileN handler, digito1
   GetWriteFileN handler, digito2 
-  GetWriteFile handler, _Reporte30S
   GetWriteFile handler, _Reporte31S
   GetWriteFile handler, _salto
   ; WriteFile handler, diagonal
@@ -168,10 +166,8 @@ GetWriteDate macro handler, digito1, digito2
   GuardarDigitos digito1, digito2
 
   GetWriteFile handler, _Reporte10S
-  GetWriteFile handler, _Reporte30S
   GetWriteFileN handler, digito1
   GetWriteFileN handler, digito2 
-  GetWriteFile handler, _Reporte30S
   GetWriteFile handler, _Reporte31S
   GetWriteFile handler, _salto
 
@@ -186,10 +182,8 @@ GetWriteDate macro handler, digito1, digito2
   GuardarDigitos digito1, digito2 
   
   GetWriteFile handler, _Reporte11S
-  GetWriteFile handler, _Reporte30S
   GetWriteFileN handler, digito1
   GetWriteFileN handler, digito2 
-  GetWriteFile handler, _Reporte30S
   GetWriteFile handler, _salto
 
   
@@ -205,10 +199,8 @@ GetWriteDate macro handler, digito1, digito2
   GuardarDigitos digito1, digito2
   
   GetWriteFile handler, _Reporte14S
-  GetWriteFile handler, _Reporte30S
   GetWriteFileN handler, digito1
   GetWriteFileN handler, digito2 
-  GetWriteFile handler, _Reporte30S
   GetWriteFile handler, _Reporte31S
   GetWriteFile handler, _salto
 
@@ -222,10 +214,8 @@ GetWriteDate macro handler, digito1, digito2
   GuardarDigitos digito1, digito2
   
   GetWriteFile handler, _Reporte15S
-  GetWriteFile handler, _Reporte30S
   GetWriteFileN handler, digito1
   GetWriteFileN handler, digito2 
-  GetWriteFile handler, _Reporte30S
   GetWriteFile handler, _Reporte31S
   GetWriteFile handler, _salto
 
@@ -239,10 +229,8 @@ GetWriteDate macro handler, digito1, digito2
   GuardarDigitos digito1, digito2
   
   GetWriteFile handler, _Reporte16S
-  GetWriteFile handler, _Reporte30S
   GetWriteFileN handler, digito1
   GetWriteFileN handler, digito2 
-  GetWriteFile handler, _Reporte30S
   GetWriteFile handler, _salto
 
 
@@ -362,12 +350,14 @@ Solicitar_Numero macro cadenaNumero, numeroConvertido
 	GetAC cadenaNumero
 	GetEND cadenaNumero
 	GetEVAL cadenaNumero,numeroConvertido
+	GetPrintCommand cadenaNumero
 	;cmp cadenaNumero,'d7h'  ; Codigo ASCCI [END -> Hexadecimal] salir del programa
 	;je Lmenu
 	
 	; Convertimos la cadena a numero es guardado en AX
 	String_Int cadenaNumero
 	mov numeroConvertido, ax 		; Guardar en el "int"
+	GetImparPar
 endm
 
 ;limpiar variables
@@ -750,4 +740,324 @@ GetOperacion macro text
 	  push dx
 
 
+endm
+
+
+GetCleanConsole macro
+	mov ah, 00
+	mov al, 03h
+	int 10h
+
+endm
+
+
+
+GetImparPar macro
+	local par, impar, salir
+
+	mov bl,2
+	div bl
+	;compara
+	cmp ah,0
+	jp par
+	jnp impar
+
+	par:
+		; GetPrint _PAR
+		mov dx, _numeroPar
+    add dx, 1
+    mov _numeroPar, dx
+    mov ax, _numeroPar
+    Int_String _numeroParS
+    ; GetPrint _numeroParS
+    ; GetPrint _salto
+		jmp salir
+	
+	
+	impar:
+		; GetPrint _IMPAR
+		mov dx, _numeroImpar
+    add dx, 1
+    mov _numeroImpar, dx
+    mov ax, _numeroImpar
+    Int_String _numeroImparS
+    ; GetPrint _numeroImparS
+    ; GetPrint _salto
+		jmp salir
+	
+	salir: 
+	
+	
+endm
+
+
+GetPrintCommand macro palabra
+LOCAL _Lend1, _Lend2, _Lend3, _Lend4, _Lend5, _Lout, _Lout2, _Lconca
+	push ax
+  push cx
+  push bx
+  push dx 
+  xor SI, SI ; contador para el contenedor
+	xor DI, DI ; contador para posiciones
+	xor BX, BX ; contador para posiciones
+	xor ax, ax 
+	xor cx, cx ; usado
+	xor bx, bx ; usado
+	xor dx, dx  
+
+	; 13
+	cmp palabra[SI], 50h ; Codigo ASCCI [P -> Hexadecimal]
+	je _Lend1	
+	jmp _Lout
+
+	_Lend1:
+		INC SI
+		cmp palabra[SI], 52h ; Codigo ASCCI [R -> Hexadecimal]
+		je _Lend2
+		jmp _Lout
+
+	_Lend2:
+		INC SI
+		Cmp palabra[SI], 49h ; Codigo ASCCI [I -> Hexadecimal]
+		je _Lend3
+		jmp _Lout
+
+	_Lend3:
+		INC SI
+		Cmp palabra[SI], 4eh ; Codigo ASCCI [N -> Hexadecimal]
+		je _Lend4
+		jmp _Lout
+
+	_Lend4:
+		INC SI
+		Cmp palabra[SI], 54h ; Codigo ASCCI [T -> Hexadecimal]
+		je _Lend5
+		jmp _Lout
+
+	_Lend5:
+		INC SI
+		cmp palabra[SI], 20h ; Codigo ASCCI [space -> Hexadecimal]
+		je _Lend5
+		cmp palabra[SI], 24h ; Codigo ASCCI [$ -> Hexadecimal]
+		je _Lout
+		
+	
+
+		XOR AX, AX
+		mov al,palabra[SI]
+		mov _cadenaParImpar[BX], AL
+		INC BX
+		
+		jmp _Lconca
+
+	_Lconca:
+		INC SI
+		XOR AX, AX
+		mov al,palabra[SI]
+		
+		cmp palabra[SI], 24h ; Codigo ASCCI [$ -> Hexadecimal]
+		je _Lout2
+
+		mov _cadenaParImpar[BX], AL
+		INC BX
+		jmp _Lconca
+	_Lout2:
+		
+		GetPrintPar _cadenaParImpar
+		GetPrintImpar _cadenaParImpar		
+		jmp _Lout
+
+	_Lout:
+		push ax
+	  push cx
+	  push bx
+	  push dx
+
+endm
+
+
+GetPrintPar macro palabra
+LOCAL _Lend1, _Lend2, _Lend3, _Lend4, _Lend5, _Lout, _Lout2, _Lconca
+	push ax
+  push cx
+  push bx
+  push dx 
+  xor SI, SI ; contador para el contenedor
+	xor DI, DI ; contador para posiciones
+	xor BX, BX ; contador para posiciones
+	xor ax, ax 
+	xor cx, cx ; usado
+	xor bx, bx ; usado
+	xor dx, dx  
+
+	; 13
+	cmp palabra[SI], 50h ; Codigo ASCCI [P -> Hexadecimal]
+	je _Lend1	
+	jmp _Lout
+
+	_Lend1:
+		INC SI
+		cmp palabra[SI], 41h ; Codigo ASCCI [A -> Hexadecimal]
+		je _Lend2
+		jmp _Lout
+
+	_Lend2:
+		INC SI
+		Cmp palabra[SI], 52h ; Codigo ASCCI [R -> Hexadecimal]
+		je _Lend3
+		jmp _Lout
+
+	_Lend3:
+		INC SI
+		Cmp palabra[SI], 45h ; Codigo ASCCI [E -> Hexadecimal]
+		je _Lend4
+		jmp _Lout
+
+	_Lend4:
+		INC SI
+		Cmp palabra[SI], 53h ; Codigo ASCCI [T -> Hexadecimal]
+		je _Lend5
+		jmp _Lout
+
+	_Lend5:
+		INC SI
+		cmp palabra[SI], 20h ; Codigo ASCCI [space -> Hexadecimal]
+		je _Lend5
+		cmp palabra[SI], 24h ; Codigo ASCCI [$ -> Hexadecimal]
+		je _Lout
+		
+	
+
+		XOR AX, AX
+		mov al,palabra[SI]
+		mov _cadenaParImpar[BX], AL
+		INC BX
+		
+		jmp _Lconca
+
+	_Lconca:
+		INC SI
+		XOR AX, AX
+		mov al,palabra[SI]
+		
+		cmp palabra[SI], 24h ; Codigo ASCCI [$ -> Hexadecimal]
+		je _Lout2
+
+		mov _cadenaParImpar[BX], AL
+		INC BX
+		jmp _Lconca
+	_Lout2:
+		
+		
+		GetPrint _salto
+		GetPrint _PAR
+		GetPrint _numeroParS
+		GetPrint _salto
+		
+		
+	  jmp Lmenu
+	_Lout:
+		push ax
+	  push cx
+	  push bx
+	  push dx 
+endm
+
+GetPrintImpar macro palabra
+LOCAL _Lend1, _Lend2, _Lend3, _Lend4, _Lend5, _Lend6, _Lend7, _Lout, _Lout2, _Lconca
+	push ax
+  push cx
+  push bx
+  push dx 
+  xor SI, SI ; contador para el contenedor
+	xor DI, DI ; contador para posiciones
+	xor BX, BX ; contador para posiciones
+	xor ax, ax 
+	xor cx, cx ; usado
+	xor bx, bx ; usado
+	xor dx, dx  
+
+	; 13
+	cmp palabra[SI], 49h ; Codigo ASCCI [I -> Hexadecimal]
+	je _Lend1	
+	jmp _Lout
+
+	_Lend1:
+		INC SI
+		cmp palabra[SI], 4dh ; Codigo ASCCI [M -> Hexadecimal]
+		je _Lend2
+		jmp _Lout
+
+	_Lend2:
+		INC SI
+		Cmp palabra[SI], 50h ; Codigo ASCCI [P -> Hexadecimal]
+		je _Lend3
+		jmp _Lout
+
+	_Lend3:
+		INC SI
+		Cmp palabra[SI], 41H ; Codigo ASCCI [A -> Hexadecimal]
+		je _Lend4
+		jmp _Lout
+
+	_Lend4:
+		INC SI
+		Cmp palabra[SI], 52H ; Codigo ASCCI [R -> Hexadecimal]
+		je _Lend5
+		jmp _Lout
+
+	_Lend5:
+		INC SI
+		Cmp palabra[SI], 45H ; Codigo ASCCI [E -> Hexadecimal]
+		je _Lend6
+		jmp _Lout
+
+	_Lend6:
+		INC SI
+		Cmp palabra[SI], 53H ; Codigo ASCCI [S -> Hexadecimal]
+		je _Lend7
+		jmp _Lout
+
+	_Lend7:
+		INC SI
+		cmp palabra[SI], 20h ; Codigo ASCCI [space -> Hexadecimal]
+		je _Lend7
+		cmp palabra[SI], 24h ; Codigo ASCCI [$ -> Hexadecimal]
+		je _Lout
+		
+	
+
+		XOR AX, AX
+		mov al,palabra[SI]
+		mov _cadenaParImpar[BX], AL
+		INC BX
+		
+		jmp _Lconca
+
+	_Lconca:
+		INC SI
+		XOR AX, AX
+		mov al,palabra[SI]
+		
+		cmp palabra[SI], 24h ; Codigo ASCCI [$ -> Hexadecimal]
+		je _Lout2
+
+		mov _cadenaParImpar[BX], AL
+		INC BX
+		jmp _Lconca
+	_Lout2:
+		
+		
+		GetPrint _salto
+		GetPrint _IMPAR
+		GetPrint _numeroImparS
+		GetPrint _salto
+		
+		
+	  jmp Lmenu
+	_Lout:
+		push ax
+	  push cx
+	  push bx
+	  push dx 
 endm

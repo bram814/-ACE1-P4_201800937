@@ -841,7 +841,7 @@ endm
 
 
 GetPrintCommand macro palabra
-LOCAL _Lend1, _Lend2, _Lend3, _Lend4, _Lend5, _Lout, _Lout2, _Lconca
+LOCAL _Lend1, _Lend2, _Lend3, _Lend4, _Lend5,_Lout, _Lout2, _Lconca
 	push ax
   push cx
   push bx
@@ -913,7 +913,8 @@ LOCAL _Lend1, _Lend2, _Lend3, _Lend4, _Lend5, _Lout, _Lout2, _Lconca
 	_Lout2:
 		
 		GetPrintPar _cadenaParImpar
-		GetPrintImpar _cadenaParImpar		
+		GetPrintImpar _cadenaParImpar	
+		GetPrintPrimo	_cadenaParImpar
 		jmp _Lout
 
 	_Lout:
@@ -1100,6 +1101,100 @@ LOCAL _Lend1, _Lend2, _Lend3, _Lend4, _Lend5, _Lend6, _Lend7, _Lout, _Lout2, _Lc
 		GetPrint _salto
 		GetPrint _IMPAR
 		GetPrint _numeroImparS
+		GetPrint _salto
+		
+		
+	  jmp Lmenu
+	_Lout:
+		push ax
+	  push cx
+	  push bx
+	  push dx 
+endm
+
+
+GetPrintPrimo macro palabra
+LOCAL _Lend1, _Lend2, _Lend3, _Lend4, _Lend5,  _Lend6, _Lout, _Lout2, _Lconca
+	push ax
+  push cx
+  push bx
+  push dx 
+  xor SI, SI ; contador para el contenedor
+	xor DI, DI ; contador para posiciones
+	xor BX, BX ; contador para posiciones
+	xor ax, ax 
+	xor cx, cx ; usado
+	xor bx, bx ; usado
+	xor dx, dx  
+
+	; 13
+	cmp palabra[SI], 50h ; Codigo ASCCI [P -> Hexadecimal]
+	je _Lend1	
+	jmp _Lout
+
+	_Lend1:
+		INC SI
+		cmp palabra[SI], 52h ; Codigo ASCCI [R -> Hexadecimal]
+		je _Lend2
+		jmp _Lout
+
+	_Lend2:
+		INC SI
+		Cmp palabra[SI], 49h ; Codigo ASCCI [I -> Hexadecimal]
+		je _Lend3
+		jmp _Lout
+
+	_Lend3:
+		INC SI
+		Cmp palabra[SI], 4dh ; Codigo ASCCI [M -> Hexadecimal]
+		je _Lend4
+		jmp _Lout
+
+	_Lend4:
+		INC SI
+		Cmp palabra[SI], 4fh ; Codigo ASCCI [O -> Hexadecimal]
+		je _Lend5
+		jmp _Lout
+
+	_Lend5:
+		INC SI
+		Cmp palabra[SI], 53h ; Codigo ASCCI [S -> Hexadecimal]
+		je _Lend6
+		jmp _Lout
+
+	_Lend6:
+		INC SI
+		cmp palabra[SI], 20h ; Codigo ASCCI [space -> Hexadecimal]
+		je _Lend6
+		cmp palabra[SI], 24h ; Codigo ASCCI [$ -> Hexadecimal]
+		je _Lout
+		
+	
+
+		XOR AX, AX
+		mov al,palabra[SI]
+		mov _cadenaParImpar[BX], AL
+		INC BX
+		
+		jmp _Lconca
+
+	_Lconca:
+		INC SI
+		XOR AX, AX
+		mov al,palabra[SI]
+		
+		cmp palabra[SI], 24h ; Codigo ASCCI [$ -> Hexadecimal]
+		je _Lout2
+
+		mov _cadenaParImpar[BX], AL
+		INC BX
+		jmp _Lconca
+	_Lout2:
+		
+		
+		GetPrint _salto
+		GetPrint _PRIMO
+		GetPrint _numeroPrimoS
 		GetPrint _salto
 		
 		

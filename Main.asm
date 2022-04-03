@@ -55,6 +55,7 @@ _cadena20       db 0ah,0dh,               "4. Regresar",            "$"
 ; ************** [CALCULADORA] **************
 _PAR            db 0ah,0dh, "Cantidad de Numeros Pares Reconocidos: $"
 _IMPAR          db 0ah,0dh, "Cantidad de Numeros Impares Reconocidos: $"
+_PRIMO          db 0ah,0dh, "Cantidad de Numeros Primos Reconocidos: $"
 _cadena21       db 0ah,0dh,               "Calculadora",            "$"
 _cadena22       db 0ah,0dh,               "==============================",  "$"
 _resultS        db 10 dup(' '), "$" ; Sirve para almacenar el result en String
@@ -64,6 +65,7 @@ _numero3S       db 10 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _numeroParS     db 10 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _numeroImparS   db 10 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _numeroPrimoS   db 10 dup(' '), "$"
+_numeroMediaS   db 10 dup(' '), "$"
 _OPERAS         db 50 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _OPERASCompare  db 50 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
 _cadenaParImpar db 50 dup(' '), "$" ; Sirve para almacenar el numero 3 en String
@@ -75,6 +77,7 @@ _numero3        dw 0                ; Sirve para almacenar el numero 2 en int
 _numeroPar      dw 0                ; Sirve para almacenar el numero 2 en int
 _numeroImpar    dw 0                ; Sirve para almacenar el numero 2 en int
 _numeroPrimo    dw 0 
+_numeroMedia    dw 0 
 _contPrimo      dw 0
 _numeroTemp     dw 0                ; Sirve para almacenar el numero 2 en int
 _calcuResultado dw 0                ; Sirve para almacenar el Resultado
